@@ -110,9 +110,11 @@ def main():
     parser.add_argument('-c', dest='compression', required=False, default=4,
                         type=int,
                         help='Optional fq.gz compression rate [default: 4]')
+    parser.add_argument('-s', dest='sample',
+                        help='Sample prefix for output summary')
     args = parser.parse_args()
 
-    logfile = open('runlog.txt', 'a')
+    logfile = open(args.sample + '.runlog.txt', 'a')
     fq1 = None
     fq2 = None
     if args.output:
@@ -133,9 +135,9 @@ def main():
     ambig_pct = (ambiguous_count + 0.0) / pair_count * 100
     global total_reads
     print >>logfile, "{} total reads".format(total_reads)
-    print >>logfile, "kept {} alignment pairs out of {}  %{:.4f}".format(
+    print >>logfile, "kept {} alignment pairs out of {}  {:.4f}%".format(
         keep_count, pair_count, keep_pct)
-    print >>logfile, "kept {} ambiguous alignment pairs out of {}  %{:.4f}".format(
+    print >>logfile, "kept {} ambiguous alignment pairs out of {}  {:.4f}%".format(
         ambiguous_count, pair_count, ambig_pct)
     print >>logfile, "time delta: {}".format(str(time_delta))
 
