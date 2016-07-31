@@ -143,6 +143,7 @@ def main():
     print >>logfile, "kept {} ambiguous alignment pairs out of {}  {:.4f}%".format(
         ambiguous_count, pair_count, ambig_pct)
     print >>logfile, "time delta: {}".format(str(time_delta))
+    return 0
 
 if __name__ == '__main__':
     main()
