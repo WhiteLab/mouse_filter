@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import argparse
 import gzip
 import datetime
@@ -113,7 +114,9 @@ def main():
     parser.add_argument('-s', dest='sample',
                         help='Sample prefix for output summary')
     args = parser.parse_args()
-
+    if len(sys.argv) == 1:
+        parser.print_help()
+        sys.exit(1)
     logfile = open(args.sample + '.runlog.txt', 'a')
     fq1 = None
     fq2 = None
