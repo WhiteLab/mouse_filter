@@ -27,8 +27,7 @@ def read_bam(bamfile):
             read2 = bam.next()
             total_reads += 1
         if read1.query_name != read2.query_name:
-            print "{}\n{}".format(read1.query_name,
-                                  read2.query_name)
+            logfile.write("Read 1 query not equal to read 2 query\n{}\n{}".format(read1.query_name, read2.query_name))
             raise ValueError
         yield (read1, read2)
 
@@ -117,6 +116,7 @@ def main():
     if len(sys.argv) == 1:
         parser.print_help()
         sys.exit(1)
+    global logfile
     logfile = open(args.sample + '.runlog.txt', 'a')
     fq1 = None
     fq2 = None
