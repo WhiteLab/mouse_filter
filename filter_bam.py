@@ -60,12 +60,16 @@ def mated(read1, read2):
     return (read1.rname == read2.rname) and (abs(read1.isize) < window)
 
 
-def perfect_alignments(read1, read2):
+def perfect_alignments(read1, read2, mm):
+    # along with cigar, also ensure edit distance is as specified
+    mm = int(mm)
+    r1_edit = read1.get_tag('NM')
+    r2_edit = read2.get_tag('NM')
     return ((len(read1.cigar) == 1 and read1.cigar[0][0] == 0) and
-            (len(read2.cigar) == 1 and read2.cigar[0][0] == 0))
+            (len(read2.cigar) == 1 and read2.cigar[0][0] == 0) and (r1_edit <= mm and r2_edit <= mm))
 
 
-def evaluate(bam=None, fq1=None, fq2=None):
+def evaluate(bam=None, fq1=None, fq2=None, mm=None):
     pair_count = 0
     keep_count = 0
     ambiguous_count = 0
@@ -83,7 +87,7 @@ def evaluate(bam=None, fq1=None, fq2=None):
             '''
             if (both_mapped(pair[0], pair[1]) and
                     mated(pair[0], pair[1]) and
-                    perfect_alignments(pair[0], pair[1])):
+                    perfect_alignments(pair[0], pair[1], mm)):
                 pass
             else:
                 #  Consider sending imperfect alignments to other pair of files
@@ -112,6 +116,8 @@ def main():
                         help='Optional fq.gz compression rate [default: 4]')
     parser.add_argument('-s', dest='sample',
                         help='Sample prefix for output summary')
+    parser.add_argument('-n', dest='num_mm',
+                        help='Number of allowed mismatches')
     args = parser.parse_args()
     if len(sys.argv) == 1:
         parser.print_help()
@@ -129,7 +135,7 @@ def main():
     t_start = datetime.datetime.now()
     print >>logfile, "----------\nStart time: {}".format(t_start)
     pair_count, keep_count, ambiguous_count = evaluate(
-        fq1=fq1, fq2=fq2, bam=args.bam)
+        fq1=fq1, fq2=fq2, bam=args.bam, mm=args.num_mm)
     t_end = datetime.datetime.now()
     print >>logfile, "End time:   {}".format(t_end)
 
