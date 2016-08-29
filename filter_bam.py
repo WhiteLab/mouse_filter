@@ -63,8 +63,11 @@ def mated(read1, read2):
 def perfect_alignments(read1, read2, mm):
     # along with cigar, also ensure edit distance is as specified
     mm = int(mm)
-    r1_edit = read1.get_tag('NM')
-    r2_edit = read2.get_tag('NM')
+    try:
+        r1_edit = read1.get_tag('NM')
+        r2_edit = read2.get_tag('NM')
+    except:
+        return False
     return ((len(read1.cigar) == 1 and read1.cigar[0][0] == 0) and
             (len(read2.cigar) == 1 and read2.cigar[0][0] == 0) and (r1_edit <= mm and r2_edit <= mm))
 
