@@ -64,6 +64,11 @@ def perfect_alignments(read1, read2, mm, bam_fh):
     check = ((len(read1.cigar) == 1 and read1.cigar[0][0] == 0) and
             (len(read2.cigar) == 1 and read2.cigar[0][0] == 0))
     if check:
+        if r1_edit not in mm_ct:
+            mm_ct[r1_edit] = 0
+        if r2_edit not in mm_ct:
+            mm_ct[r2_edit] = 0
+
         mm_ct[r1_edit] += 1
         mm_ct[r2_edit] += 1
         if not (r1_edit <= mm and r2_edit <= mm):
