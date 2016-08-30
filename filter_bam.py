@@ -56,9 +56,11 @@ def both_mapped(read1, read2):
     return not (read1.is_unmapped and read2.is_unmapped)
 
 
-def mated(read1, read2):
-    return (read1.rname == read2.rname) and (abs(read1.isize) < window)
-
+def mated(read1, read2, stype):
+    if stype == 'DNA':
+        return (read1.rname == read2.rname) and (abs(read1.isize) < window)
+    else:
+        return read1.rname == read2.rname
 
 def perfect_alignments(read1, read2, mm):
     # along with cigar, also ensure edit distance is as specified
@@ -78,7 +80,7 @@ def perfect_alignments(read1, read2, mm):
             (len(read2.cigar) == 1 and read2.cigar[0][0] == 0) and (r1_edit <= mm and r2_edit <= mm))
 
 
-def evaluate(bam=None, fq1=None, fq2=None, mm=None):
+def evaluate(bam=None, fq1=None, fq2=None, mm=None, stype=None):
     pair_count = 0
     keep_count = 0
     ambiguous_count = 0
@@ -95,7 +97,7 @@ def evaluate(bam=None, fq1=None, fq2=None, mm=None):
             *  insert size: read1.isize , negative for read2
             '''
             if (both_mapped(pair[0], pair[1]) and
-                    mated(pair[0], pair[1]) and
+                    mated(pair[0], pair[1], stype) and
                     perfect_alignments(pair[0], pair[1], mm)):
                 pass
             else:
@@ -127,6 +129,8 @@ def main():
                         help='Sample prefix for output summary')
     parser.add_argument('-n', dest='num_mm',
                         help='Number of allowed mismatches')
+    parser.add_argument('-t', dest='stype',
+                        help='RNA or DNA')
     args = parser.parse_args()
     if len(sys.argv) == 1:
         parser.print_help()
@@ -144,7 +148,7 @@ def main():
     t_start = datetime.datetime.now()
     print >>logfile, "----------\nStart time: {}".format(t_start)
     pair_count, keep_count, ambiguous_count = evaluate(
-        fq1=fq1, fq2=fq2, bam=args.bam, mm=args.num_mm)
+        fq1=fq1, fq2=fq2, bam=args.bam, mm=args.num_mm, stype=args.stype)
     t_end = datetime.datetime.now()
     print >>logfile, "End time:   {}".format(t_end)
 
