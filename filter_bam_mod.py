@@ -138,6 +138,10 @@ def main():
     print >>logfile, "kept {} ambiguous alignment pairs out of {}  {:.4f}%".format(
         ambiguous_count, pair_count, ambig_pct)
     print >>logfile, "time delta: {}".format(str(time_delta))
+    logfile.write('num mismatches\tnum reads\n')
+    for i in sorted(mm_ct):
+        logfile.write(str(i) + '\t' + str(mm_ct[i]) + '\n')
+    logfile.close()
     return 0
 
 if __name__ == '__main__':
