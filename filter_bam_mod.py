@@ -77,7 +77,7 @@ def evaluate(bam=None, mm=None):
     keep_count = 0
     ambiguous_count = 0
     head = pysam.AlignmentFile(bam, 'rb')
-    mmu_bam_hits = pysam.AlignmentFile('mmu_hits.bam', 'wb', template=bam)
+    mmu_bam_hits = pysam.AlignmentFile('mmu_hits.bam', 'wb', template=head)
     head.close()
     for pair_count, pair in enumerate(read_bam(bam), start=1):
         # do we have alignments
