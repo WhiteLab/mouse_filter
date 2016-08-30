@@ -57,10 +57,16 @@ def perfect_alignments(read1, read2, mm, bam_fh, mode):
     # along with cigar, also ensure edit distance is as specified
     mm = int(mm)
     try:
+        # bwa-style aligner edit tag
         r1_edit = read1.get_tag('NM')
         r2_edit = read2.get_tag('NM')
     except:
-        return False
+        try:
+            # STAR-style edit tag
+            r1_edit = read1.get_tag('nM')
+            r2_edit = read2.get_tag('nM')
+        except:
+            return False
     check = ((len(read1.cigar) == 1 and read1.cigar[0][0] == 0) and
             (len(read2.cigar) == 1 and read2.cigar[0][0] == 0))
     if check:
