@@ -49,9 +49,11 @@ def both_mapped(read1, read2):
     return not (read1.is_unmapped and read2.is_unmapped)
 
 
-def mated(read1, read2):
-    return (read1.rname == read2.rname) and (abs(read1.isize) < window)
-
+def mated(read1, read2, stype):
+    if stype == 'DNA':
+        return (read1.rname == read2.rname) and (abs(read1.isize) < window)
+    else:
+        return read1.rname == read2.rname
 
 def perfect_alignments(read1, read2, mm, bam_fh, mode):
     # along with cigar, also ensure edit distance is as specified
@@ -86,7 +88,7 @@ def perfect_alignments(read1, read2, mm, bam_fh, mode):
     return check and (r1_edit <= mm and r2_edit <= mm)
 
 
-def evaluate(bam=None, mm=None, mode=None):
+def evaluate(bam=None, mm=None, mode=None, stype=None):
     pair_count = 0
     keep_count = 0
     ambiguous_count = 0
@@ -102,7 +104,7 @@ def evaluate(bam=None, mm=None, mode=None):
             *  insert size: read1.isize , negative for read2
             '''
             if (both_mapped(pair[0], pair[1]) and
-                    mated(pair[0], pair[1]) and
+                    mated(pair[0], pair[1], stype) and
                     perfect_alignments(pair[0], pair[1], mm, mmu_bam_hits, mode)):
                 pass
     return pair_count, keep_count, ambiguous_count
@@ -127,6 +129,8 @@ def main():
     parser.add_argument('-n', dest='num_mm',
                         help='Number of allowed mismatches')
     parser.add_argument('-o', dest='mode', help='Output mode - postive or negative based on num mm')
+    parser.add_argument('-t', dest='stype',
+                        help='RNA or DNA')
     args = parser.parse_args()
     if len(sys.argv) == 1:
         parser.print_help()
@@ -139,7 +143,7 @@ def main():
     t_start = datetime.datetime.now()
     print >>logfile, "----------\nStart time: {}".format(t_start)
     pair_count, keep_count, ambiguous_count = evaluate(
-        bam=args.bam, mm=args.num_mm, mode=mode)
+        bam=args.bam, mm=args.num_mm, mode=mode, stype=args.stype)
     t_end = datetime.datetime.now()
     print >>logfile, "End time:   {}".format(t_end)
 
