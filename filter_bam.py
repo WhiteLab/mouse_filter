@@ -38,42 +38,46 @@ def read_bam(bamfile):
             total_reads += 1
 
 
-def rev_comp(seq):
+def rev_comp(seq, qual):
     code = {'A': 'T', 'T': 'A', 'C': 'G', 'G': 'C', 'N': 'N'}
     new_seq = ''
     for i in xrange(0, len(seq), 1):
         new_seq += code[seq[i]]
-    return new_seq[::-1]
+    return new_seq[::-1], qual[::-1]
 
 
 def print_fastq_to_pipes(read1=None, read2=None, **kwargs):
     # sam spec is to output read in orientation of reference, will need to flip if mapped reverse complement to
     # reference
     cur_seq = read1.seq
+    cur_qual = read1.qual
     if read1.is_reverse:
-        cur_seq = rev_comp(read1.seq)
+        (cur_seq, cur_qual) = rev_comp(read1.seq, read1.qual)
     sys.stdout.write("@{}\n{}\n+\n{}\n".format(read1.query_name, cur_seq,
-                                               read1.qual))
+                                               cur_qual))
     cur_seq = read2.seq
+    cur_qual = read2.qual
     if read2.is_reverse:
-        cur_seq = rev_comp(read2.seq)
+        (cur_seq, cur_qual) = rev_comp(read2.seq, read2.qual)
     sys.stderr.write("@{}\n{}\n+\n{}\n".format(read2.query_name, cur_seq,
-                                               read2.qual))
+                                               cur_qual))
 
 
 def print_fastq(outfile1=None, outfile2=None, read1=None, read2=None):
     # sam spec is to output read in orientation of reference, will need to flip if mapped reverse complement to
     # reference
     cur_seq = read1.seq
+    cur_qual = read1.qual
     if read1.is_reverse:
-        cur_seq = rev_comp(read1.seq)
+        (cur_seq, cur_qual) = rev_comp(read1.seq, read1.qual)
     outfile1.write("@{}\n{}\n+\n{}\n".format(read1.query_name, cur_seq,
-                                             read1.qual))
+                                             cur_qual))
     cur_seq = read2.seq
+    cur_qual = read2.qual
     if read2.is_reverse:
-        cur_seq = rev_comp(read2.seq)
+        (cur_seq, cur_qual) = rev_comp(read2.seq, read2.qual)
     outfile2.write("@{}\n{}\n+\n{}\n".format(read2.query_name, cur_seq,
-                                             read2.qual))
+                                             cur_qual))
 
 
 def both_mapped(read1, read2):
