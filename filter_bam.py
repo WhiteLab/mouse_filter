@@ -38,17 +38,41 @@ def read_bam(bamfile):
             total_reads += 1
 
 
+def rev_comp(seq):
+    code = {'A': 'T', 'T': 'A', 'C': 'G', 'G': 'C', 'N': 'N'}
+    new_seq = ''
+    for i in xrange(0, len(seq), 1):
+        new_seq += code[seq[i]]
+    return new_seq[::-1]
+
+
 def print_fastq_to_pipes(read1=None, read2=None, **kwargs):
-    sys.stdout.write("@{}\n{}\n+\n{}\n".format(read1.query_name, read1.seq,
+    # sam spec is to output read in orientation of reference, will need to flip if mapped reverse complement to
+    # reference
+    cur_seq = read1.seq
+    if read1.is_reverse:
+        cur_seq = rev_comp(read1.seq)
+    sys.stdout.write("@{}\n{}\n+\n{}\n".format(read1.query_name, cur_seq,
                                                read1.qual))
-    sys.stderr.write("@{}\n{}\n+\n{}\n".format(read2.query_name, read2.seq,
+    cur_seq = read2.seq
+    if read2.is_reverse:
+        cur_seq = rev_comp(read2.seq)
+    sys.stderr.write("@{}\n{}\n+\n{}\n".format(read2.query_name, cur_seq,
                                                read2.qual))
 
 
 def print_fastq(outfile1=None, outfile2=None, read1=None, read2=None):
-    outfile1.write("@{}\n{}\n+\n{}\n".format(read1.query_name, read1.seq,
+    # sam spec is to output read in orientation of reference, will need to flip if mapped reverse complement to
+    # reference
+    cur_seq = read1.seq
+    if read1.is_reverse:
+        cur_seq = rev_comp(read1.seq)
+    outfile1.write("@{}\n{}\n+\n{}\n".format(read1.query_name, cur_seq,
                                              read1.qual))
-    outfile2.write("@{}\n{}\n+\n{}\n".format(read2.query_name, read2.seq,
+    cur_seq = read2.seq
+    if read2.is_reverse:
+        cur_seq = rev_comp(read2.seq)
+    outfile2.write("@{}\n{}\n+\n{}\n".format(read2.query_name, cur_seq,
                                              read2.qual))
 
 
@@ -61,6 +85,7 @@ def mated(read1, read2, stype):
         return (read1.rname == read2.rname) and (abs(read1.isize) < window)
     else:
         return read1.rname == read2.rname
+
 
 def perfect_alignments(read1, read2, mm):
     # along with cigar, also ensure edit distance is as specified
