@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import argparse
 import gzip
 import datetime
@@ -16,7 +16,7 @@ def read_bam(bamfile):
     bam = pysam.AlignmentFile(bamfile, 'rb')
     read1 = bam.next()
     total_reads += 1
-    read2 = None
+    # read2 = None
     while read1:
         while (read1.is_secondary and not read1.is_read1) or read1.flag & 2048:
             read1 = bam.next()
@@ -41,7 +41,7 @@ def read_bam(bamfile):
 def rev_comp(seq, qual):
     code = {'A': 'T', 'T': 'A', 'C': 'G', 'G': 'C', 'N': 'N'}
     new_seq = ''
-    for i in xrange(0, len(seq), 1):
+    for i in range(0, len(seq), 1):
         new_seq += code[seq[i]]
     return new_seq[::-1], qual[::-1]
 
@@ -175,23 +175,22 @@ def main():
                         compresslevel=args.compression)
 
     t_start = datetime.datetime.now()
-    print >>logfile, "----------\nStart time: {}".format(t_start)
+    logfile.write("----------\nStart time: {}".format(t_start) + '\n')
     pair_count, keep_count, ambiguous_count = evaluate(
         fq1=fq1, fq2=fq2, bam=args.bam, mm=args.num_mm, stype=args.stype)
     t_end = datetime.datetime.now()
-    print >>logfile, "End time:   {}".format(t_end)
+    logfile.write("End time:   {}".format(t_end) + '\n')
 
     time_delta = t_end - t_start
     keep_pct = (keep_count + 0.0) / pair_count * 100
     ambig_pct = (ambiguous_count + 0.0) / pair_count * 100
     global total_reads
-    print >>logfile, "{} total reads".format(total_reads)
-    print >>logfile, "kept {} alignment pairs out of {}  {:.4f}%".format(
-        keep_count, pair_count, keep_pct)
-    print >>logfile, "kept {} ambiguous alignment pairs out of {}  {:.4f}%".format(
-        ambiguous_count, pair_count, ambig_pct)
-    print >>logfile, "time delta: {}".format(str(time_delta))
+    logfile.write("{} total reads".format(total_reads) + '\n')
+    logfile.write("kept {} alignment pairs out of {}  {:.4f}%".format(keep_count, pair_count, keep_pct) + '\n')
+    logfile.write("kept {} ambiguous alignment pairs out of {}  {:.4f}%".format(ambiguous_count, pair_count, ambig_pct) + '\n')
+    logfile.write("time delta: {}".format(str(time_delta)) + '\n')
     return 0
+
 
 if __name__ == '__main__':
     main()
